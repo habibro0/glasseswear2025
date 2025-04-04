@@ -91,6 +91,14 @@
               <button id="zoomIn" style="padding: 5px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer;">Zoom In</button>
               <button id="zoomOut" style="padding: 5px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer;">Zoom Out</button>
               <button id="fit" style="padding: 5px 15px; margin: 5px; background: #28a745; color: white; border: none; cursor: pointer;">Fit</button>
+              <div class="move-controls">
+                <button id="moveUp">⬆ Up</button>
+                <div>
+                    <button id="moveLeft">⬅ Left</button>
+                    <button id="moveRight">➡ Right</button>
+                </div>
+                <button id="moveDown">⬇ Down</button>
+            </div>
           </div>
           <!-- Screenshot Button -->
 <!-- Screenshot Button -->
@@ -378,13 +386,16 @@
     const glasses = document.getElementById('glasses');
 
     let zoomLevel = 1; // Default zoom
-
+    let posX = 0; // X-axis position
+    let posY = 0; // Y-axis position
     // Zoom In button
     document.getElementById('zoomIn').addEventListener('click', () => {
         zoomLevel += 0.1;
         applyZoom();
     });
-
+    document.getElementById("fit").addEventListener("click", () => {
+    autoAdjust();
+});
     // Zoom Out button
     document.getElementById('zoomOut').addEventListener('click', () => {
         zoomLevel = Math.max(0.1, zoomLevel - 0.1); // minimum zoom 0.1x
@@ -396,6 +407,34 @@
         zoomLevel = 1;
         applyZoom();
     });
+    document.getElementById("moveLeft").addEventListener("click", () => {
+    posX -= 10;
+    applyTransform();
+});
+document.getElementById("moveRight").addEventListener("click", () => {
+    posX += 10;
+    applyTransform();
+});
+document.getElementById("moveUp").addEventListener("click", () => {
+    posY -= 10;
+    applyTransform();
+});
+document.getElementById("moveDown").addEventListener("click", () => {
+    posY += 10;
+    applyTransform();
+});
+// 🟢 **Apply Transform (Zoom + Move + Rotate)**
+function applyTransform() {
+    glasses.style.transform = `translate(-50%, -50%) scale(${zoomLevel}) rotate(${currentAngle}deg) translate(${posX}px, ${posY}px)`;
+}
+
+// 📌 **Auto Adjust Glasses (Fit Button)**
+function autoAdjust() {
+    zoomLevel = 1; // Default zoom
+    posX = 0; // Reset X position
+    posY = 0; // Reset Y position
+    applyTransform();
+}
 
     // Apply zoom to glasses image
     function applyZoom() {
@@ -441,61 +480,38 @@
         }
     }
 
-    async function detectFace(model) {
-        const timerText = document.getElementById('timer');
-        let countdown = 5;
+  // 🟢 **Face Detection Function**
+async function detectFace(model) {
+    async function frame() {
+        if (video.readyState === 4) {
+            const predictions = await model.estimateFaces(video);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const timerInterval = setInterval(() => {
-            timerText.innerText = `🕒 Position Your Face... ${countdown}`;
-            countdown--;
-            if (countdown < 0) {
-                clearInterval(timerInterval);
-                timerText.innerText = "";
-                startDetection();
+            if (predictions.length > 0) {
+                const keypoints = predictions[0].scaledMesh;
+                const leftEye = keypoints[33];
+                const rightEye = keypoints[263];
+
+                const centerX = (leftEye[0] + rightEye[0]) / 2;
+                const centerY = (leftEye[1] + rightEye[1]) / 2;
+                const eyeDist = Math.hypot(rightEye[0] - leftEye[0], rightEye[1] - leftEye[1]);
+
+                // Rotate Angle
+                currentAngle = Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0]) * (180 / Math.PI);
+
+                // **Update Position & Size**
+                glasses.style.left = `${centerX}px`;
+                glasses.style.top = `${centerY}px`;
+                glasses.style.width = `${eyeDist * 2}px`;
+
+                // Apply Transform (Zoom, Move, Rotate)
+                applyTransform();
             }
-        }, 1000);
-
-        async function startDetection() {
-            async function frame() {
-                if (video.readyState === 4) {
-                    const predictions = await model.estimateFaces(video);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    if (predictions.length > 0) {
-                        const keypoints = predictions[0].scaledMesh;
-                        const leftEye = keypoints[33];
-                        const rightEye = keypoints[263];
-
-                        const centerX = (leftEye[0] + rightEye[0]) / 2;
-                        const centerY = (leftEye[1] + rightEye[1]) / 2;
-                        const eyeDist = Math.hypot(rightEye[0] - leftEye[0], rightEye[1] - leftEye[1]);
-
-                        // Rotation angle
-                        currentAngle = Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0]) * (180 / Math.PI);
-
-                        glasses.style.left = `${centerX}px`;
-                        glasses.style.top = `${centerY}px`;
-                        glasses.style.width = `${eyeDist * 2}px`;
-
-                        // Apply zoom + rotation
-                        applyZoom();
-
-                        // Status
-                        const statusText = document.getElementById('faceStatus');
-                        if (currentAngle > -5 && currentAngle < 5) {
-                            statusText.innerText = "✅ Face is Straight";
-                            statusText.style.color = "green";
-                        } else {
-                            statusText.innerText = "❌ Face is Tilted";
-                            statusText.style.color = "red";
-                        }
-                    }
-                }
-                requestAnimationFrame(frame);
-            }
-            frame();
         }
+        requestAnimationFrame(frame);
     }
+    frame();
+}
     document.querySelectorAll('.small-img1, .small-img2, .small-img3').forEach(img => {
     img.addEventListener('click', () => {
         // پہلے سے سلیکٹڈ ایمیج کا active کلاس ہٹائیں
@@ -933,10 +949,6 @@ iframe {
     transition: color 0.3s ease;
     z-index: 999999;
   }
-  #glasses {
-        width: 20vw; /* Smaller glasses on mobile */
-        top: 40vh;   /* Adjusted vertical position for mobile */
-    }
   .modal-overlay {
     display: none;
     position: fixed;
