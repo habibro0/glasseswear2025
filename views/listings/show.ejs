@@ -100,6 +100,8 @@
                 <button id="moveDown">⬇ Down</button>
             </div>
           </div>
+          <!-- --legacy-peer-deps -->
+
           <!-- Screenshot Button -->
 <!-- Screenshot Button -->
 <!-- Screenshot Button -->
@@ -452,35 +454,47 @@ function autoAdjust() {
         document.getElementById('cameraModal').style.display = 'none';
         stopCamera();
     }
-
     async function openCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
 
-            video.onloadeddata = async () => {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                glasses.style.display = 'block';
-                const model = await facemesh.load();
-                detectFace(model);
-            };
-        } catch (err) {
-            console.error('Camera error:', err);
-        }
+        video.onloadeddata = async () => {
+            resizeCanvas(); // 🔁 Auto adjust on load
+            window.addEventListener('resize', resizeCanvas); // 🔁 Also resize on window change
+
+            glasses.style.display = 'block';
+            const model = await facemesh.load();
+            detectFace(model, model); // pass model once
+        };
+    } catch (err) {
+        console.error('Camera error:', err);
     }
+}
 
-    function stopCamera() {
-        const stream = video.srcObject;
-        if (stream) {
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            video.srcObject = null;
-            glasses.style.display = 'none';
-        }
+function stopCamera() {
+    const stream = video.srcObject;
+    if (stream) {
+        const tracks = stream.getTracks();
+        tracks.forEach(track => track.stop());
+        video.srcObject = null;
+        glasses.style.display = 'none';
     }
+}
 
-  // 🟢 **Face Detection Function**
+// 🔄 Resize function for every screen
+function resizeCanvas() {
+    const ratio = video.videoWidth / video.videoHeight;
+    const width = video.offsetWidth;
+    const height = width / ratio;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+}
+
 async function detectFace(model) {
     async function frame() {
         if (video.readyState === 4) {
@@ -489,22 +503,28 @@ async function detectFace(model) {
 
             if (predictions.length > 0) {
                 const keypoints = predictions[0].scaledMesh;
+
                 const leftEye = keypoints[33];
                 const rightEye = keypoints[263];
 
-                const centerX = (leftEye[0] + rightEye[0]) / 2;
-                const centerY = (leftEye[1] + rightEye[1]) / 2;
-                const eyeDist = Math.hypot(rightEye[0] - leftEye[0], rightEye[1] - leftEye[1]);
+                // 🔄 Ratio matching canvas/video size
+                const videoRect = video.getBoundingClientRect();
+                const scaleX = canvas.width / video.videoWidth;
+                const scaleY = canvas.height / video.videoHeight;
 
-                // Rotate Angle
+                const centerX = ((leftEye[0] + rightEye[0]) / 2) * scaleX;
+                const centerY = ((leftEye[1] + rightEye[1]) / 2) * scaleY;
+                const eyeDist = Math.hypot(
+                    (rightEye[0] - leftEye[0]) * scaleX,
+                    (rightEye[1] - leftEye[1]) * scaleY
+                );
+
                 currentAngle = Math.atan2(rightEye[1] - leftEye[1], rightEye[0] - leftEye[0]) * (180 / Math.PI);
 
-                // **Update Position & Size**
                 glasses.style.left = `${centerX}px`;
                 glasses.style.top = `${centerY}px`;
                 glasses.style.width = `${eyeDist * 2}px`;
 
-                // Apply Transform (Zoom, Move, Rotate)
                 applyTransform();
             }
         }
@@ -512,16 +532,7 @@ async function detectFace(model) {
     }
     frame();
 }
-    document.querySelectorAll('.small-img1, .small-img2, .small-img3').forEach(img => {
-    img.addEventListener('click', () => {
-        // پہلے سے سلیکٹڈ ایمیج کا active کلاس ہٹائیں
-        document.querySelectorAll('.small-img1, .small-img2, .small-img3')
-            .forEach(i => i.classList.remove('active'));
-        
-        // جس پر کلک ہوا ہے اسے بڑا کریں
-        img.classList.add('active');
-    });
-});
+
 // 📌 Camera Modal Open & Close
 document.getElementById("captureBtn").addEventListener("click", async function () {
     let video = document.getElementById("video");
@@ -694,7 +705,20 @@ body {
   position: absolute;
   top: 5%;
 }
+@media (max-width: 768px) {
+    .move-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
 
+@media (min-width: 769px) {
+    .move-controls {
+        display: none; /* لیپ ٹاپ پر یہ بٹن ہائیڈ ہو جائیں گے */
+    }
+   
+}
 .listing-details {
   display: flex;
   align-items: center;
