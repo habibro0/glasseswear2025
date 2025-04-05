@@ -77,32 +77,45 @@
         </a>
     </div>
 </div>
-
 <style>
-   .category-filter {
-    display: flex;
-    flex-wrap: wrap; /* 3 کیٹیگریز فی لائن کے لیے */
-    justify-content: center;
-    gap: 15px;
-    padding: 15px;
-    overflow: hidden;
-}
-
-.category-item {
-    flex: 0 0 calc(33.33% - 10px); /* ہر آئٹم 3 میں تقسیم ہوگا */
-    max-width: calc(33.33% - 10px);
-    text-align: center;
-}
-
-    .category-filter::-webkit-scrollbar {
-        display: none; /* Chrome */
+    /* Category Filter container */
+    .category-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        padding: 40px;
+        background: linear-gradient(135deg, #5bd6995b, #ffcc001c);
+        border-radius: 25px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        transition: all 0.4s ease-out;
+        position: relative;
+        margin-bottom: 40px; /* Space below the filter */
     }
 
+    .category-filter:hover {
+        background: linear-gradient(135deg, #973787, #42a839); /* Subtle hover effect */
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Each category item styling */
     .category-item {
-        flex: 0 0 auto;
+        flex: 0 0 calc(33.33% - 30px); /* Adjusted for optimal spacing */
+        max-width: calc(33.33% - 30px);
         text-align: center;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        padding: 20px;
     }
 
+    .category-item:hover {
+        transform: translateY(-12px); /* Slight lift */
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Button styling inside each category */
     .category-btn {
         background: none;
         border: none;
@@ -110,81 +123,99 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        justify-content: center; /* Ensures centering */
     }
 
     .category-btn:hover {
-        transform: scale(1.1);
+        transform: scale(1.1); /* Slight zoom effect */
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
+    /* Category image styling */
     .category-image {
-        width: 70px;
-        height: 70px;
+        width: 100px;
+        height: 100px;
         object-fit: cover;
         border-radius: 50%;
-        border: 2px solid #ddd;
-        transition: all 0.4s ease;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
 
     .category-btn:hover .category-image {
-        transform: scale(1.2);
-        border: 2px solid #4caf50; /* Green border on hover */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        transform: scale(1.2); /* Enlarges image on hover */
+        border-color: #ff6f61;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
+    /* Text under the category image */
     .category-btn span {
-        margin-top: 5px;
-        font-size: 13px;
+        margin-top: 20px;
+        font-size: 18px;
         font-weight: bold;
         color: #333;
-        transition: color 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: color 0.3s ease, transform 0.3s ease;
     }
 
     .category-btn:hover span {
-        color: #4caf50; /* Text color change on hover */
+        color: #ff6f61; /* Premium color for text */
+        transform: translateY(-5px); /* Slight lift effect */
     }
 
-    .category-filter:hover {
-        scroll-behavior: smooth;
-    }
+    /* Scroll buttons for category filter */
     .scroll-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 50%;
-            font-size: 18px;
-            transition: all 0.3s ease;
-        }
-
-        .scroll-btn:hover {
-            background: #4caf50;
-        }
-
-        .prev-btn {
-            left: -40px;
-        }
-
-        .next-btn {
-            right: -40px;
-        }
-
-        @media (max-width: 768px) {
-    .category-item {
-        flex: 0 0 calc(33.33% - 10px);
-        max-width: calc(33.33% - 10px);
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        cursor: pointer;
+        border-radius: 50%;
+        font-size: 24px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
-}
 
-/* بہت چھوٹی اسکرین (480px سے کم) کے لیے */
-@media (max-width: 480px) {
-    .category-item {
-        flex: 0 0 calc(33.33% - 5px);
-        max-width: calc(33.33% - 5px);
+    .scroll-btn:hover {
+        background: #ff6f61; /* Premium hover color */
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
-}
+
+    .prev-btn {
+        left: -50px;
+    }
+
+    .next-btn {
+        right: -50px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .category-item {
+            flex: 0 0 calc(50% - 20px);
+            max-width: calc(50% - 20px);
+            padding: 15px; /* Padding reduced for smaller screens */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .category-item {
+            flex: 0 0 calc(100% - 20px); /* Full width for smaller screens */
+            max-width: calc(100% - 20px);
+            padding: 15px; /* Padding reduced for smaller screens */
+        }
+
+        .category-filter {
+            padding: 20px; /* Reduced padding for small screens */
+        }
+    }
 </style>
+
+
+
