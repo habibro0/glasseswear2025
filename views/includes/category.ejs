@@ -79,13 +79,21 @@
 </div>
 
 <style>
-    .category-filter {
-        display: flex;
-        overflow-x: auto;
-        padding: 15px;
-        gap: 20px;
-        scrollbar-width: none; /* Firefox */
-    }
+   .category-filter {
+    display: flex;
+    flex-wrap: wrap; /* 3 کیٹیگریز فی لائن کے لیے */
+    justify-content: center;
+    gap: 15px;
+    padding: 15px;
+    overflow: hidden;
+}
+
+.category-item {
+    flex: 0 0 calc(33.33% - 10px); /* ہر آئٹم 3 میں تقسیم ہوگا */
+    max-width: calc(33.33% - 10px);
+    text-align: center;
+}
+
     .category-filter::-webkit-scrollbar {
         display: none; /* Chrome */
     }
@@ -166,16 +174,17 @@
         }
 
         @media (max-width: 768px) {
-            .category-item {
-                flex: 1 1 calc(50% - 20px);
-                max-width: calc(50% - 20px);
-            }
-        }
+    .category-item {
+        flex: 0 0 calc(33.33% - 10px);
+        max-width: calc(33.33% - 10px);
+    }
+}
 
-        @media (max-width: 480px) {
-            .category-item {
-                flex: 1 1 100%;
-                max-width: 100%;
-            }
-        }
+/* بہت چھوٹی اسکرین (480px سے کم) کے لیے */
+@media (max-width: 480px) {
+    .category-item {
+        flex: 0 0 calc(33.33% - 5px);
+        max-width: calc(33.33% - 5px);
+    }
+}
 </style>
