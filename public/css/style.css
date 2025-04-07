@@ -345,15 +345,18 @@ body {
 /* slide  */
 
 
-.slide2{
-    display: flex;
-    justify-content: center;
-    /* background-color: #2E7D32; */
-    width: 85%;
-    height: 75vh;
-   
-   margin-left: 8%;
+.slide2 {
+  height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.3s ease-in-out;
 }
+
+.slide2:hover {
+  transform: scale(1.015);
+}
+
+
 
 
 /* slide  */
