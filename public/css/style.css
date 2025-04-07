@@ -1073,7 +1073,64 @@ button:hover {
   
   /* Responsive Design */
   @media (max-width: 768px) {
+    .navbar .navbar-brand img {
+      height: 70px;
+      width: 100px;
+      position: absolute;
+      top: 4%;
+      left: 20%;
+     
 
+ 
+
+
+  
+  
+    }
+nav{
+  height: 220px;
+}
+    .navbar-nav {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .navbar-nav  {
+      /* margin-top: 1px; */
+
+
+    }
+    .serrch{
+      position: absolute;
+      left: 6vh;
+      width: 300px;
+    }
+    .nav-item1{
+      position: absolute;
+      top: 4%;
+      left: 50%;
+    }
+    .nav-item{
+      margin-top: 60px;
+    }
+    .navbar-nav .nav-item .nav-link {
+      font-size: 1.2rem;
+    }
+    .fa-cart-shopping{
+      position: absolute;
+      top: 40px;
+      left: -120px;
+    }
+    .fa-heart{
+      position: absolute;
+      top: 169px;
+      left: 180px;
+    }
+    .nave{
+      position: absolute;
+      top: 90px;
+      left: 230px;
+    }
     .listing-details {
       flex-direction: column;
       align-items: flex-start;
@@ -1151,50 +1208,4 @@ button:hover {
 
  
     
-  }
-  @media (max-width: 991px) {
-    .navbar .navbar-brand img {
-      height: 70px;
-      width: 100px;
-      position: absolute;
-      top: 4%;
-      left: 20%;
-     
-
- 
-
-
-  
-  
-    }
-nav{
-  height: 220px;
-}
-    .navbar-nav {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .navbar-nav  {
-      /* margin-top: 1px; */
-
-
-    }
-    .serrch{
-      position: absolute;
-      left: 6vh;
-      width: 300px;
-    }
-    .nav-item1{
-      position: absolute;
-      top: 4%;
-      left: 50%;
-    }
-    .nav-item{
-      margin-top: 60px;
-    }
-    .navbar-nav .nav-item .nav-link {
-      font-size: 1.2rem;
-    }
-   
   }
