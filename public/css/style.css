@@ -6,7 +6,6 @@
 .serch{
   width: 680px;
 }
-
 .overlay-thumbnails {
   margin-top: 20px;
 }
@@ -274,7 +273,7 @@ body {
 
 
 .cart-text {
-  /* display: none; *
+  display: none;
 }
 
 
@@ -344,58 +343,7 @@ body {
 
 
 /* slide  */
-.navbar {
-  width: 100%;
-  font-size: 16px; /* Ensure that font size is consistent */
-}
-.navbar {
-  transform: scale(1); /* To reset any scaling */
-}
 
-.navbar {
-  transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-
-.navbar:hover {
-  background: linear-gradient(45deg, #ff8a65, #f4f9ff);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Logo Styling */
-.navbar-logo {
-  height: 100px; 
-  width: 180px; 
-  /* object-fit: cover;  */
-  /* border-radius: 15px; */
-}
-
-/* All Items Link Styling */
-.navbar-nav .nav-item .nav-link {
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 0.75rem 2.25rem;
-  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
-}
-
-.navbar-nav .nav-item .nav-link:hover {
-  color: #ff6f61;
-  transform: scale(1.1);
-}
-
-.navbar-nav .nav-item .nav-link:focus {
-  color: #ff6f61;
-}
-
-.navbar-nav .nav-item .nav-link:active {
-  color: #ff3b30;
-}
-
-/* Badge Styling */
-.navbar .badge {
-  font-size: 0.75rem;
-  padding: 0.3em 0.5em;
-  background-color: #ff6f61;
-}
 
 .slide2{
     display: flex;
@@ -1074,28 +1022,7 @@ button:hover {
   
   /* Responsive Design */
   @media (max-width: 768px) {
-  nav{
-    height: 280px;
-  }
-  .logo1{
-  width: 120px;
-  height: 150px;
-  margin-right: 5px;
-  }
-  .serr{
-    width: 320px;
-    height: 60px;
-    position: absolute;
-    top: 160px;
-  }
-  .al{
-    position: absolute;
-    bottom: 10px;
-    left: 120px;
-  }
-  .sal{
-    margin-left: 10px;
-  }
+
     .listing-details {
       flex-direction: column;
       align-items: flex-start;
@@ -1155,7 +1082,10 @@ button:hover {
   }
   
   @media (max-width: 480px) {
-   
+    .navbar .nav-link {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
     .slide2{
       height: 100px;
     }
@@ -1171,3 +1101,5 @@ button:hover {
  
     
   }
+
+  
