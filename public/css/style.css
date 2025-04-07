@@ -1,3 +1,4 @@
+
 /* navbar  */
 /* Custom Navbar Styling */
 *{
@@ -343,11 +344,25 @@ body {
 
 
 /* slide  */
+.navbar {
+  width: 100%;
+  font-size: 16px; /* Ensure that font size is consistent */
+}
+.navbar {
+  transform: scale(1); /* To reset any scaling */
+}
+
+  .navbar .nav-link:hover {
+    color: #0d6efd !important;
+    transition: all 0.2s ease-in-out;
+  }
+  .search input::placeholder {
+    font-style: italic;
+    font-size: 0.95rem;
+  }
 
 
-
-
-.slide1{
+.slide2{
     display: flex;
     justify-content: center;
     /* background-color: #2E7D32; */
@@ -357,11 +372,7 @@ body {
    margin-left: 8%;
 }
 
-.slide1 img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+
 /* slide  */
 
 
