@@ -1,73 +1,82 @@
-<nav class="navbar navbar-expand-lg sticky-top py-3 premium-navbar">
-  <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+
+<nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm py-2">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
 
     <!-- Logo -->
-    <a class="navbar-brand logo-area" href="/listings">
-      <img src="https://res.cloudinary.com/dzp0yscrc/image/upload/v1743675911/logo_zc4pps.png" alt="Brand Logo">
+    <a class="navbar-brand me-4" href="/listings">
+      <img src="https://res.cloudinary.com/dzp0yscrc/image/upload/v1743675911/logo_zc4pps.png" alt="Brand Logo" style="height: 45px;">
     </a>
 
-    <!-- Left Nav -->
-    <ul class="navbar-nav d-flex flex-row flex-wrap mb-2 gap-3 me-auto">
-      <li class="nav-item">
-        <a class="nav-link nav-link-custom" href="/listings">All Items</a>
-      </li>
-    </ul>
+    <!-- Toggle for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <!-- Search Bar Center -->
-    <form class="d-flex mx-auto search-form" action="/search" method="GET">
-      <input class="form-control px-4 py-2 rounded-pill shadow-lg" type="search" placeholder="Search for items..." name="query">
-    </form>
+    <div class="collapse navbar-collapse w-100" id="navbarMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item me-3">
+          <a class="nav-link fw-semibold text-dark" href="/listings">All Items</a>
+        </li>
+      </ul>
 
-    <!-- Right Nav -->
-    <ul class="navbar-nav d-flex flex-row align-items-center gap-3 ms-auto">
+      <!-- Search Bar -->
+      <form class="d-flex mx-auto w-50" role="search" action="/search" method="GET">
+        <input class="form-control rounded-pill px-4 shadow-sm border-1" type="search" placeholder="Search for items..." name="query">
+      </form>
 
-      <!-- Cart -->
-      <li class="nav-item position-relative">
-        <a href="/cart" class="nav-link nav-icon">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span class="cart-label">Cart</span>
-          <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
-            <span class="badge position-absolute top-0 start-100 translate-middle bg-danger">
-              <%= cartCount %>
-            </span>
-          <% } %>
-        </a>
-      </li>
+      <!-- Right Side Icons -->
+      <ul class="navbar-nav ms-auto d-flex flex-row align-items-center">
 
-      <!-- Favorites -->
-      <li class="nav-item">
-        <a class="nav-link nav-icon" href="#" id="favoritesBtn1">
-          <i class="fa-solid fa-heart"></i>
-        </a>
-      </li>
-
-      <!-- User Dropdown -->
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle nav-icon" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-          <i class="fa-solid fa-user"></i>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-4 p-2 custom-dropdown">
-          <% if (!currentUser) { %>
-            <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
-            <li><a class="dropdown-item" href="/login">Login</a></li>
-          <% } else { %>
-            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-            <% if (["faisalmotiwala", "karim", "habibro123"].includes(currentUser.username)) { %>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/listings/new">Create Item</a></li>
-              <li><a class="dropdown-item" href="/users">All Users</a></li>
-              <li>
-                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/orders">
-                  Orders
-                  <% if (pendingOrders > 0) { %>
-                    <span class="badge bg-danger ms-2"><%= pendingOrders %></span>
-                  <% } %>
-                </a>
-              </li>
+        <!-- Cart -->
+        <li class="nav-item position-relative me-3">
+          <a href="/cart" class="text-dark fs-5 text-decoration-none">
+            <i class="fa-solid fa-cart-shopping me-1"></i>
+            <span class="cart-text">Cart</span>
+            <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <%= cartCount %>
+              </span>
             <% } %>
-          <% } %>
-        </ul>
-      </li>
-    </ul>
+          </a>
+        </li>
+
+        <!-- Favorites -->
+        <li class="nav-item me-3">
+          <a class="nav-link text-danger fs-5" href="#" id="favoritesBtn1">
+            <i class="fa-solid fa-heart"></i>
+          </a>
+        </li>
+
+        <!-- User Dropdown -->
+        <li class="nav-item dropdown me-2">
+          <a class="nav-link dropdown-toggle text-dark fs-5" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-user"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+            <% if (!currentUser) { %>
+              <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+              <li><a class="dropdown-item" href="/login">Login</a></li>
+            <% } else { %>
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+              <% if (["faisalmotiwala", "karim", "habibro123"].includes(currentUser.username)) { %>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/listings/new">Create Item</a></li>
+                <li><a class="dropdown-item" href="/users">All Users</a></li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center justify-content-between" href="/orders">
+                    Orders
+                    <% if (pendingOrders > 0) { %>
+                      <span class="badge bg-danger ms-2"><%= pendingOrders %></span>
+                    <% } %>
+                  </a>
+                </li>
+              <% } %>
+            <% } %>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
+
