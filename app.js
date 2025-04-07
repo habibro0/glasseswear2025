@@ -788,10 +788,13 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   // View Cart
   app.get('/cart', async (req, res) => {
     try {
-      // Fetch details of items in cart
+      const cart = req.session.cart || [];  // Ensure cart is not undefined
+      console.log("Cart items:", cart);
+  
       const cartDetails = await Promise.all(
         cart.map(async (item) => {
           const product = await Listing.findById(item.productId);
+          console.log("Product fetched:", product);  // Check if the product is fetched correctly
           return { ...product.toObject(), quantity: item.quantity };
         })
       );
@@ -801,6 +804,7 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
       res.status(500).send("Server Error");
     }
   });
+  
   // Update Cart
   app.post('/cart/update', async (req, res) => {
     try {
