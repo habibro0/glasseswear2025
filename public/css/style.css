@@ -1126,33 +1126,6 @@ button:hover {
     .card-body {
       padding: 10px;
     }
-  
-    footer {
-      padding: 15px 0;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .navbar .nav-link {
-      font-size: 14px;
-      padding: 8px 12px;
-    }
-    .slide2{
-      height: 100px;
-    }
-  
-    .card-body .price {
-      font-size: 1em;
-    }
-  
-    .carousel-inner img {
-      height: 200px;
-    }
-
- 
-    
-  }
-  @media (max-width: 991px) {
     .navbar .navbar-brand img {
       height: 70px;
       width: 100px;
@@ -1196,5 +1169,28 @@ nav{
     .navbar-nav .nav-item .nav-link {
       font-size: 1.2rem;
     }
+    footer {
+      padding: 15px 0;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .navbar .nav-link {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+    .slide2{
+      height: 100px;
+    }
+  
+    .card-body .price {
+      font-size: 1em;
+    }
+  
+    .carousel-inner img {
+      height: 200px;
+    }
+
  
+    
   }
