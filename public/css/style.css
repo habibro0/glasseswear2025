@@ -363,8 +363,8 @@ body {
 /* Logo Styling */
 .navbar-logo {
   height: 100px; 
-  width: 100px; 
-  object-fit: cover; 
+  width: 180px; 
+  /* object-fit: cover;  */
   /* border-radius: 15px; */
 }
 
