@@ -1206,6 +1206,7 @@ nav{
       position: absolute;
       top: 169px;
       left: 180px;
+      display: none;
     }
     .nave{
       position: absolute;
