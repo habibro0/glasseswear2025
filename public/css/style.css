@@ -6,6 +6,7 @@
 .serch{
   width: 680px;
 }
+
 .overlay-thumbnails {
   margin-top: 20px;
 }
@@ -273,7 +274,7 @@ body {
 
 
 .cart-text {
-  /* display: none; */
+  /* display: none; *
 }
 
 
@@ -369,93 +370,32 @@ body {
 }
 
 /* All Items Link Styling */
-/* Logo Styling */
-.navbar-logo {
-  height: 90px;
-  width: auto;
+.navbar-nav .nav-item .nav-link {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.75rem 2.25rem;
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-/* Make navbar taller */
-nav {
-  height: auto;
-  padding: 20px 0;
+.navbar-nav .nav-item .nav-link:hover {
+  color: #ff6f61;
+  transform: scale(1.1);
 }
 
-/* Search Bar */
-.serrch {
-  width: 100%;
-  max-width: 400px;
-  margin: 10px 0;
+.navbar-nav .nav-item .nav-link:focus {
+  color: #ff6f61;
 }
 
-/* All Items link center aligned on small screen */
-.nav-item1 {
-  position: static !important;
-  text-align: center;
+.navbar-nav .nav-item .nav-link:active {
+  color: #ff3b30;
 }
 
-/* Right section (icons) spacing */
-.navbar-nav .nav-item {
-  margin-top: 10px;
+/* Badge Styling */
+.navbar .badge {
+  font-size: 0.75rem;
+  padding: 0.3em 0.5em;
+  background-color: #ff6f61;
 }
-
-.fa-cart-shopping,
-.fa-heart {
-  position: static !important;
-}
-
-/* User dropdown */
-.nave11 {
-  position: static !important;
-}
-
-/* Flex wrap support */
-.container-fluid {
-  flex-wrap: wrap;
-}
-
-/* Custom heart spacing */
-.heart11 {
-  margin-left: 10px;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .navbar-nav {
-    flex-direction: row !important;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .navbar-logo {
-    margin: 0 auto 10px;
-    display: block;
-    width: 80px;
-    height: 80px;
-  }
-
-  .serrch {
-    order: 3;
-  }
-
-  .nav-item1 {
-    order: 1;
-  }
-
-  .nave11, .heart11 {
-    order: 4;
-    margin-top: 10px;
-  }
-
-  .fa-cart-shopping {
-    order: 2;
-  }
-
-  .navbar-nav .nav-item {
-    margin: 5px 10px;
-  }
-}
-
 
 .slide2{
     display: flex;
@@ -1134,7 +1074,28 @@ button:hover {
   
   /* Responsive Design */
   @media (max-width: 768px) {
-
+  nav{
+    height: 280px;
+  }
+  .logo1{
+  width: 120px;
+  height: 150px;
+  margin-right: 5px;
+  }
+  .serr{
+    width: 320px;
+    height: 60px;
+    position: absolute;
+    top: 160px;
+  }
+  .al{
+    position: absolute;
+    bottom: 10px;
+    left: 120px;
+  }
+  .sal{
+    margin-left: 10px;
+  }
     .listing-details {
       flex-direction: column;
       align-items: flex-start;
@@ -1194,10 +1155,7 @@ button:hover {
   }
   
   @media (max-width: 480px) {
-    .navbar .nav-link {
-      font-size: 14px;
-      padding: 8px 12px;
-    }
+   
     .slide2{
       height: 100px;
     }
@@ -1213,4 +1171,3 @@ button:hover {
  
     
   }
- 
