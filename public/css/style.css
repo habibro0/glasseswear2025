@@ -1196,19 +1196,5 @@ nav{
     .navbar-nav .nav-item .nav-link {
       font-size: 1.2rem;
     }
-    .cart11{
-      position: absolute;
-      top: 10px;
-      left: -280px;
-    }
-    .heart11{
-      position: absolute;
-      top: 147px;
-      left: 145px;
-    }
-    .nave11{
-      position: absolute;
-      top: 90px;
-      left: 230px;
-    }
+ 
   }
