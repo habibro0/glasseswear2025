@@ -22,8 +22,8 @@
     <ul class="navbar-nav flex-row align-items-center ms-3">
 
       <!-- Cart -->
-      <li class="nav-item me-3 position-relative">
-        <a href="/cart" class="text-dark nav-link fs-5 cart11">
+      <li class="nav-item me-3  position-relative">
+        <a href="/cart" class="text-dark nav-link fs-5 ">
           <i class="fa-solid fa-cart-shopping me-1"></i>
           <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -34,11 +34,14 @@
       </li>
 
       <!-- Favorites -->
-      <li class="nav-item me-3">
-        <a href="#" class="nav-link heart11 text-danger fs-5" id="favoritesBtn1">
+       <div class="heart11">
+
+      <li class="nav-item me-3 ">
+        <a href="#" class="nav-link  text-danger fs-5" id="favoritesBtn1">
           <i class="fa-solid fa-heart"></i>
         </a>
       </li>
+    </div>
 
       <!-- User -->
       <li class="nav-item nave11 dropdown ">
