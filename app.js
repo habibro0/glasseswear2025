@@ -81,11 +81,13 @@ if(process.env.NODE_ENV !== 'production'){
     resave: false,
     saveUninitialized: true,
     cookie: {
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true
+        maxAge: 7 * 24 * 60 * 60 * 1000,  // 1 week in milliseconds
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        sameSite: 'strict' // To prevent CSRF attacks
     }
-  };
+};
+
   
   app.use(session(sessionOptions)); // ✅ پہلے سیشن لوڈ کرو
   
@@ -764,55 +766,44 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   })
  // Cart logic: Using a simple array for now (can be stored in session or DB)
   let cart = [];
+  
   // Add to Cart
   app.post('/cart/add', (req, res) => {
     try {
-        const { productId } = req.body;
-        
-        // Check if cart exists in session, if not, initialize it
-        if (!req.session.cart) {
-            req.session.cart = [];
-        }
-
-        const existingProduct = req.session.cart.find(item => item.productId === productId);
-        
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            req.session.cart.push({ productId, quantity: 1 });
-        }
-        
-        res.redirect('/cart');
-    } catch (err) {
-        console.log("Error adding to cart:", err);
-        res.status(500).send("Server Error");
-    }
-});
-
-// View Cart
-app.get('/cart', async (req, res) => {
-  try {
-      // If cart is in session
-      if (!req.session.cart || req.session.cart.length === 0) {
-          return res.render('cart.ejs', { cartDetails: [], message: "Your cart is empty." });
+      const { productId } = req.body; // Product ID from the form
+      const existingProduct = cart.find(item => item.productId === productId);
+  
+      if (existingProduct) {
+        existingProduct.quantity += 1;  // Increase quantity if product already exists
+      } else {
+        cart.push({ productId, quantity: 1 });  // Add new product to cart
       }
-
+  
+      // Redirect to /cart after adding the item to cart
+      res.redirect('/cart');
+    } catch (err) {
+      console.log("Error adding to cart:", err);
+      res.status(500).send("Server Error");
+    }
+  });
+  
+  // View Cart
+  app.get('/cart', async (req, res) => {
+    try {
+      // Fetch details of items in cart
       const cartDetails = await Promise.all(
-          req.session.cart.map(async (item) => {
-              const product = await Listing.findById(item.productId);
-              return { ...product.toObject(), quantity: item.quantity };
-          })
+        cart.map(async (item) => {
+          const product = await Listing.findById(item.productId);
+          return { ...product.toObject(), quantity: item.quantity };
+        })
       );
-      
       res.render('listings/cart.ejs', { cartDetails });
-  } catch (err) {
+    } catch (err) {
       console.log("Error fetching cart:", err);
       res.status(500).send("Server Error");
-  }
-});
-
-
-  
+    }
+  });
+  // Update Cart
   app.post('/cart/update', async (req, res) => {
     try {
       const { productId, quantity } = req.body;
@@ -963,4 +954,4 @@ app.get('/cart', async (req, res) => {
   app.listen(8080, () => {
     console.log("server is listening to port 8080");
   });
-
+  
