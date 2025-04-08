@@ -772,29 +772,21 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   app.post('/cart/add', (req, res) => {
     try {
       const { productId } = req.body; // Product ID from the form
-      // Initialize cart if it doesn't exist in session
-      if (!req.session.cart) {
-        req.session.cart = [];
-      }
-
-      // Check if the product already exists in the cart
-      const existingProduct = req.session.cart.find(item => item.productId === productId);
-
+      const existingProduct = cart.find(item => item.productId === productId);
+  
       if (existingProduct) {
         existingProduct.quantity += 1;  // Increase quantity if product already exists
       } else {
-        // If not in cart, add the product with quantity 1
-        req.session.cart.push({ productId, quantity: 1 });
+        cart.push({ productId, quantity: 1 });  // Add new product to cart
       }
-
+  
       // Redirect to /cart after adding the item to cart
       res.redirect('/cart');
     } catch (err) {
       console.log("Error adding to cart:", err);
       res.status(500).send("Server Error");
     }
-});
-
+  });
   
   // View Cart
   app.get('/cart', async (req, res) => {
