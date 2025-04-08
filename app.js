@@ -4,7 +4,7 @@ if(process.env.NODE_ENV !== 'production'){
   }
   
   
-
+  
   const express = require("express");
   
   const app = express();
@@ -35,9 +35,8 @@ if(process.env.NODE_ENV !== 'production'){
   
   // MongoDB URL
   // const MONGO_URL = "mongodb://127.0.0.1:27017/KhasMayar";
-  // const MONGO_URL = process.env.ATLASDB_URL;
   const MONGO_URL = process.env.ATLASDB_URL;
-
+  
   // Connect to DB
   async function main() {
     try {
@@ -65,7 +64,7 @@ if(process.env.NODE_ENV !== 'production'){
   const store = MongoStore.create({
     mongoUrl: MONGO_URL,
     crypto:{
-      secret:"glasseswearlovely",
+      secret:"mykhaasmayarlovely",
     },
     touchAfter: 24 * 3600
   })
@@ -76,19 +75,16 @@ if(process.env.NODE_ENV !== 'production'){
   
   
   const sessionOptions = {
-    store,  // Assuming you have a store like Redis set up, else use the default memory store.
-    secret: "glasseswearlovely",  // Should ideally be an environment variable
+    store,
+    secret: "mykhaasmayarlovely",
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000,  // 1 week in milliseconds
-      httpOnly: true,  // Helps prevent XSS attacks
-      secure: process.env.NODE_ENV === 'production',  // Ensures cookies are only sent over HTTPS in production
-      sameSite: 'strict'  // Helps prevent CSRF attacks
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true
     }
   };
-  
-
   
   app.use(session(sessionOptions)); // ✅ پہلے سیشن لوڈ کرو
   
@@ -156,44 +152,7 @@ if(process.env.NODE_ENV !== 'production'){
   console.log("Cloudinary Config:", cloudinary.config());
   
   
-
-
-
-app.get('/', async (req, res) => {
-  try {
-      const newArrivals = await Listing.find({ category: 'New Arrivals' }).limit(20);
-      const listings = await Listing.find({});
-      res.render('index', { listings, newArrivals });
-  } catch (err) {
-      console.error(err);
-      res.send('Error loading homepage');
-  }
-});
-app.get('/category/:categoryName', async (req, res) => {
-  const categoryName = req.params.categoryName;
-
-  try {
-      let filteredListings;
-      
-      if (categoryName === 'New Arrivals') {
-          // Special logic for New Arrivals
-          filteredListings = await Listing.find()
-              .sort({ createdAt: -1 })
-              .limit(20);
-      } else {
-          // Normal category filter
-          filteredListings = await Listing.find({ category: categoryName });
-      }
-
-      res.render('listings/category', { categoryName, filteredListings });
-  } catch (err) {
-      console.error(err);
-      res.send('Error fetching listings');
-  }
-});
-
-
-
+  
   
   app.get('/signup', (req, res) => {
     res.render('users/signup.ejs');
@@ -262,17 +221,8 @@ app.get('/category/:categoryName', async (req, res) => {
   });
   
   // Multer کے ساتھ Cloudinary storage کو لنک کریں
-
-  const upload = multer({ storage: storage }).fields([
-    { name: "image", maxCount: 1 },
-    { name: "top", maxCount: 1 },
-    { name: "bottom", maxCount: 1 },
-    { name: "left", maxCount: 1 },
-    { name: "right", maxCount: 1 }
-]);
-
+  const upload = multer({ storage: storage });
   
-
   // Set up multer for image upload
   app.post('/favorite/:id', async (req, res) => {
     if (!req.user) {  
@@ -316,34 +266,8 @@ app.get('/category/:categoryName', async (req, res) => {
     
     res.json({ favorites: req.session.favorites || [] });
   });
-  app.post("/listings/:id/like", async (req, res) => {
-    try {
-        const listing = await Listing.findById(req.params.id);
-        if (!listing) return res.status(404).json({ error: "Listing not found" });
-
-        listing.likes = (listing.likes || 0) + 1;
-        await listing.save();
-
-        res.json({ success: true, likes: listing.likes });
-    } catch (err) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
-app.post("/listings/:id/dislike", async (req, res) => {
-    try {
-        const listing = await Listing.findById(req.params.id);
-        if (!listing) return res.status(404).json({ error: "Listing not found" });
-
-        listing.likes = Math.max((listing.likes || 0) - 1, 0); // 0 سے نیچے نہ جائے
-        await listing.save();
-
-        res.json({ success: true, likes: listing.likes });
-    } catch (err) {
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
+  
+  
   
   // Index Route
   app.get("/listings", async (req, res) => {
@@ -407,63 +331,35 @@ app.post("/listings/:id/dislike", async (req, res) => {
   
   
   
-  app.put("/listings/:id", isLoggedIn, isOwner, upload, async (req, res) => {
+  app.post("/listings", isLoggedIn, upload.single("image"), async (req, res) => {
     try {
-        let { id } = req.params;
-        let listing = await Listing.findById(id);
-
-        if (!listing) {
-            req.flash("error", "Listing not found!");
-            return res.redirect("/listings");
-        }
-
-        console.log("🔍 Editing Listing ID:", id);
-        console.log("📷 Old Image:", listing.image);
-        console.log("📤 Uploaded Files:", req.files);
-
-        // ✅ اگر نئی تصویر نہ ہو، تو پرانی تصویر رکھیں
-        if (req.files) {
-            if (req.files["image"]) {
-                req.body.listing.image = req.files["image"][0].path;
-            } else {
-                req.body.listing.image = listing.image;
-            }
-            if (req.files["top"]) {
-                req.body.listing.top = req.files["top"][0].path;
-            } else {
-                req.body.listing.top = listing.top;
-            }
-            if (req.files["bottom"]) {
-                req.body.listing.bottom = req.files["bottom"][0].path;
-            } else {
-                req.body.listing.bottom = listing.bottom;
-            }
-            if (req.files["left"]) {
-                req.body.listing.left = req.files["left"][0].path;
-            } else {
-                req.body.listing.left = listing.left;
-            }
-            if (req.files["right"]) {
-                req.body.listing.right = req.files["right"][0].path;
-            } else {
-                req.body.listing.right = listing.right;
-            }
-        }
-
-        console.log("✅ Updated Image Path:", req.body.listing);
-
-        // ✅ **پرانے آئٹم کو اپڈیٹ کریں، نیا نہ بنائیں!**
-        await Listing.findByIdAndUpdate(id, { $set: req.body.listing });
-
-        req.flash("success", "Updated product successfully!");
-        res.redirect(`/listings/${id}`);
+      console.log("Received Data:", req.body);
+  
+      // ✅ Category Check
+      if (!req.body.listing || !req.body.listing.category) {
+        req.flash("error", "Category is required!");
+        return res.redirect("/listings/new");
+      }
+  
+      const newListing = new Listing(req.body.listing);
+      newListing.owner = req.user._id;
+  
+      // ✅ Cloudinary کا امیج URL محفوظ کریں
+      if (req.file) {
+        console.log("Uploaded Image URL:", req.file.path); 
+        newListing.image = req.file.path;  // Cloudinary image URL
+      }
+  
+      await newListing.save();
+      req.flash("success", "New listing created!");
+      res.redirect("/listings");
+  
     } catch (err) {
-        console.error("❌ Error updating listing:", err);
-        req.flash("error", "Something went wrong! Please try again.");
-        res.redirect("/listings");
+      console.error("Error saving listing:", err);
+      req.flash("error", "Something went wrong! Please try again.");
+      res.status(500).redirect("/listings/new");
     }
-});
-
+  });
   
   
   app.get("/listings/:id", async (req, res) => {
@@ -504,43 +400,31 @@ app.post("/listings/:id/dislike", async (req, res) => {
 });
 
   // Update Route (update an existing listing)
-  app.put("/listings/:id", isLoggedIn, isOwner, upload, async (req, res) => {
-    try {
-        let { id } = req.params;
-        let listing = await Listing.findById(id);
+  app.put("/listings/:id", isLoggedIn, isOwner, upload.single("image"), async (req, res) => {
+    let { id } = req.params;
 
-        if (!listing) {
-            req.flash("error", "Listing not found!");
-            return res.redirect("/listings");
-        }
-
-        console.log("🔍 Editing Listing ID:", id); // ✅ چیک کریں کہ صحیح ID جا رہی ہے
-        console.log("📷 Old Image:", listing.image);
-        console.log("📤 Uploaded File:", req.file ? req.file.path : "No new image uploaded");
-
-        // ✅ اگر نئی تصویر نہ ہو، تو پرانی تصویر رکھیں
-        if (req.file) {
-            req.body.listing.image = req.file.path;
-        } else {
-            req.body.listing.image = listing.image;
-        }
-
-        console.log("✅ Updated Image Path:", req.body.listing.image);
-
-        // ✅ پرانے آئٹم کو **update** کریں، نیا نہ بنائیں!
-        await Listing.findByIdAndUpdate(id, { $set: req.body.listing });
-
-        req.flash("success", "Updated product successfully!");
-        res.redirect(`/listings/${id}`);
-    } catch (err) {
-        console.error("❌ Error updating listing:", err);
-        req.flash("error", "Something went wrong! Please try again.");
-        res.redirect("/listings");
+    let listing = await Listing.findById(id);
+    if (!listing) {
+        req.flash("error", "Listing not found!");
+        return res.redirect("/listings");
     }
+
+    console.log("Old Image Path:", listing.image); // ✅ Check Old Image
+
+    // ✅ اگر نئی Image Upload نہ ہو، تو پرانی Image Save کریں
+    if (req.file) {
+        req.body.listing.image = req.file.path;  // ✅ Cloudinary Image URL
+    } else {
+        req.body.listing.image = listing.image;
+    }
+
+    console.log("Updated Image Path:", req.body.listing.image); // ✅ Check New Image
+
+    await Listing.findByIdAndUpdate(id, { image: req.body.listing.image, ...req.body.listing });
+
+    req.flash("success", "Updated product successfully!");
+    res.redirect(`/listings/${id}`);
 });
-
-
-
 
   app.get("/about", (req, res) => {
     res.render("footer/about");
@@ -690,49 +574,36 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   });
   
   // Create Listing
-  app.post("/listings", isLoggedIn, upload, async (req, res) => {
+  app.post("/listings", isLoggedIn, upload.single("image"), async (req, res) => {
     try {
-      console.log("Received Body:", req.body);
-      console.log("Received Files:", req.files);
-  
-      if (!req.body.listing || !req.body.listing.category) {
-        req.flash("error", "Category is required!");
-        return res.redirect("/listings/new");
-      }
-  
-      // Manually set image fields from req.files
-      if (req.files) {
-        if (req.files["image"]) {
-          req.body.listing.image = req.files["image"][0].path;
+        console.log("Received Data:", req.body);
+
+        // ✅ Category Check
+        if (!req.body.listing || !req.body.listing.category) {
+            req.flash("error", "Category is required!");
+            return res.redirect("/listings/new");
         }
-        if (req.files["top"]) {
-          req.body.listing.top = req.files["top"][0].path;
+
+        const newListing = new Listing(req.body.listing);
+        newListing.owner = req.user._id;
+
+        // ✅ Cloudinary کا امیج URL محفوظ کریں
+        if (req.file) {
+            console.log("Uploaded Image URL:", req.file.path); 
+            newListing.image = req.file.path;  // ✅ Cloudinary Image URL
         }
-        if (req.files["bottom"]) {
-          req.body.listing.bottom = req.files["bottom"][0].path;
-        }
-        if (req.files["left"]) {
-          req.body.listing.left = req.files["left"][0].path;
-        }
-        if (req.files["right"]) {
-          req.body.listing.right = req.files["right"][0].path;
-        }
-      }
-  
-      const newListing = new Listing(req.body.listing);
-      newListing.owner = req.user._id;
-  
-      await newListing.save();
-      req.flash("success", "New listing created!");
-      res.redirect("/listings");
-  
+
+        await newListing.save();
+        req.flash("success", "New listing created!");
+        res.redirect("/listings");
+
     } catch (err) {
-      console.error("Error saving listing:", err);
-      req.flash("error", "Something went wrong! Please try again.");
-      res.status(500).redirect("/listings/new");
+        console.error("Error saving listing:", err);
+        req.flash("error", "Something went wrong! Please try again.");
+        res.status(500).redirect("/listings/new");
     }
-  });
-  
+});
+
   
   app.get("/listings", async (req, res) => {
     const { category } = req.query;  // Get category from URL query parameter
@@ -765,56 +636,45 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   
     
   })
- // Cart logic: Using a simple array for now (can be stored in session or DB)
+  // Cart logic: Using a simple array for now (can be stored in session or DB)
   let cart = [];
   
   // Add to Cart
- 
   app.post('/cart/add', (req, res) => {
     try {
-      // Initialize cart if it doesn't exist
-      if (!req.session.cart) {
-        req.session.cart = [];  // Create an empty cart if it doesn't exist
-      }
-  
-      const { productId } = req.body;  // Product ID from the form
-      const existingProduct = req.session.cart.find(item => item.productId === productId);
+      const { productId } = req.body; // Product ID from the form
+      const existingProduct = cart.find(item => item.productId === productId);
   
       if (existingProduct) {
         existingProduct.quantity += 1;  // Increase quantity if product already exists
       } else {
-        req.session.cart.push({ productId, quantity: 1 });  // Add new product to cart
+        cart.push({ productId, quantity: 1 });  // Add new product to cart
       }
   
-      res.redirect('/cart');  // Redirect to /cart page after adding the item
+      // Redirect to /cart after adding the item to cart
+      res.redirect('/cart');
     } catch (err) {
       console.log("Error adding to cart:", err);
       res.status(500).send("Server Error");
     }
   });
-   
+  
   // View Cart
-  app.get('/cart', (req, res) => {
+  app.get('/cart', async (req, res) => {
     try {
-      if (!req.session.cart || req.session.cart.length === 0) {
-        return res.render('listings/cart.ejs', { cartDetails: [] });  // Rendering an empty cart
-      }
-  
-      const cartDetails = req.session.cart.map(item => {
-        // Fetch the product details from the database using the product ID
-        return {
-          ...item,  // Add the cart item details
-          // Add any extra product info if needed, like name, price, etc.
-        };
-      });
-  
-      res.render('listings/cart.ejs', { cartDetails });  // Render the cart with product details
+      // Fetch details of items in cart
+      const cartDetails = await Promise.all(
+        cart.map(async (item) => {
+          const product = await Listing.findById(item.productId);
+          return { ...product.toObject(), quantity: item.quantity };
+        })
+      );
+      res.render('listings/cart.ejs', { cartDetails });
     } catch (err) {
       console.log("Error fetching cart:", err);
       res.status(500).send("Server Error");
     }
   });
-  
   // Update Cart
   app.post('/cart/update', async (req, res) => {
     try {
