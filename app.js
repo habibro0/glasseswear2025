@@ -765,41 +765,52 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
  // Cart logic: Using a simple array for now (can be stored in session or DB)
   let cart = [];
   // Add to Cart
-app.post('/cart/add', (req, res) => {
-  try {
-    const { productId } = req.body; // Product ID from the form
-    const existingProduct = cart.find(item => item.productId === productId);
+  app.post('/cart/add', (req, res) => {
+    try {
+        const { productId } = req.body;
+        
+        // Check if cart exists in session, if not, initialize it
+        if (!req.session.cart) {
+            req.session.cart = [];
+        }
 
-    if (existingProduct) {
-      existingProduct.quantity += 1;  // Increase quantity if product already exists
-    } else {
-      cart.push({ productId, quantity: 1 });  // Add new product to cart
+        const existingProduct = req.session.cart.find(item => item.productId === productId);
+        
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            req.session.cart.push({ productId, quantity: 1 });
+        }
+        
+        res.redirect('/cart');
+    } catch (err) {
+        console.log("Error adding to cart:", err);
+        res.status(500).send("Server Error");
     }
-
-    // Redirect to /cart after adding the item to cart
-    res.redirect('/cart');
-  } catch (err) {
-    console.log("Error adding to cart:", err);
-    res.status(500).send("Server Error");
-  }
 });
+
 // View Cart
 app.get('/cart', async (req, res) => {
   try {
-    // Fetch details of items in cart
-    const cartDetails = await Promise.all(
-      cart.map(async (item) => {
-        const product = await Listing.findById(item.productId);
-        return { ...product.toObject(), quantity: item.quantity };
-      })
-    );
-    // Render the cart.ejs page and pass the cartDetails
-    res.render('listings/cart.ejs', { cartDetails });
+      // If cart is in session
+      if (!req.session.cart || req.session.cart.length === 0) {
+          return res.render('cart.ejs', { cartDetails: [], message: "Your cart is empty." });
+      }
+
+      const cartDetails = await Promise.all(
+          req.session.cart.map(async (item) => {
+              const product = await Listing.findById(item.productId);
+              return { ...product.toObject(), quantity: item.quantity };
+          })
+      );
+      
+      res.render('listings/cart.ejs', { cartDetails });
   } catch (err) {
-    console.log("Error fetching cart:", err);
-    res.status(500).send("Server Error");
+      console.log("Error fetching cart:", err);
+      res.status(500).send("Server Error");
   }
 });
+
 
   
   app.post('/cart/update', async (req, res) => {
@@ -952,5 +963,4 @@ app.get('/cart', async (req, res) => {
   app.listen(8080, () => {
     console.log("server is listening to port 8080");
   });
-
 
