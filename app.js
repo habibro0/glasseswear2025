@@ -76,17 +76,18 @@ if(process.env.NODE_ENV !== 'production'){
   
   
   const sessionOptions = {
-    store,
-    secret: "glasseswearlovely",
+    store,  // Assuming you have a store like Redis set up, else use the default memory store.
+    secret: "glasseswearlovely",  // Should ideally be an environment variable
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000,  // 1 week in milliseconds
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        sameSite: 'strict' // To prevent CSRF attacks
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 1 week in milliseconds
+      httpOnly: true,  // Helps prevent XSS attacks
+      secure: process.env.NODE_ENV === 'production',  // Ensures cookies are only sent over HTTPS in production
+      sameSite: 'strict'  // Helps prevent CSRF attacks
     }
-};
+  };
+  
 
   
   app.use(session(sessionOptions)); // ✅ پہلے سیشن لوڈ کرو
@@ -768,24 +769,33 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   let cart = [];
   
   // Add to Cart
- app.post('/cart/add', (req, res) => {
+  app.post('/cart/add', (req, res) => {
     try {
       const { productId } = req.body; // Product ID from the form
-      const existingProduct = cart.find(item => item.productId === productId);
-  
+      // Initialize cart if it doesn't exist in session
+      if (!req.session.cart) {
+        req.session.cart = [];
+      }
+
+      // Check if the product already exists in the cart
+      const existingProduct = req.session.cart.find(item => item.productId === productId);
+
       if (existingProduct) {
         existingProduct.quantity += 1;  // Increase quantity if product already exists
       } else {
-        cart.push({ productId, quantity: 1 });  // Add new product to cart
+        // If not in cart, add the product with quantity 1
+        req.session.cart.push({ productId, quantity: 1 });
       }
-  
+
       // Redirect to /cart after adding the item to cart
       res.redirect('/cart');
     } catch (err) {
       console.log("Error adding to cart:", err);
       res.status(500).send("Server Error");
     }
-  });
+});
+
+  
   // View Cart
   app.get('/cart', async (req, res) => {
     try {
