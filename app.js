@@ -762,7 +762,7 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   
     
   })
-  // Cart logic: Using a simple array for now (can be stored in session or DB)
+ // Cart logic: Using a simple array for now (can be stored in session or DB)
   let cart = [];
   
   // Add to Cart
@@ -788,25 +788,19 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   // View Cart
   app.get('/cart', async (req, res) => {
     try {
-      const cart = req.session.cart || [];
-      console.log("Session cart data:", cart);  // ✅ یہ line ڈال دو
-  
+      // Fetch details of items in cart
       const cartDetails = await Promise.all(
         cart.map(async (item) => {
           const product = await Listing.findById(item.productId);
-          if (!product) return null;
           return { ...product.toObject(), quantity: item.quantity };
         })
       );
-  
-      const filteredCart = cartDetails.filter(item => item !== null);
-      res.render('listings/cart.ejs', { cartDetails: filteredCart });
+      res.render('listings/cart.ejs', { cartDetails });
     } catch (err) {
-      console.log("❌ Error fetching cart:", err);
+      console.log("Error fetching cart:", err);
       res.status(500).send("Server Error");
     }
   });
-  
   // Update Cart
   app.post('/cart/update', async (req, res) => {
     try {
