@@ -4,7 +4,7 @@ if(process.env.NODE_ENV !== 'production'){
   }
   
   
-  
+
   const express = require("express");
   
   const app = express();
@@ -788,19 +788,21 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   // View Cart
   app.get('/cart', async (req, res) => {
     try {
-      const cart = req.session.cart || [];  // Ensure cart is not undefined
-      console.log("Cart items:", cart);
+      const cart = req.session.cart || [];
+      console.log("Session cart data:", cart);  // ✅ یہ line ڈال دو
   
       const cartDetails = await Promise.all(
         cart.map(async (item) => {
           const product = await Listing.findById(item.productId);
-          console.log("Product fetched:", product);  // Check if the product is fetched correctly
+          if (!product) return null;
           return { ...product.toObject(), quantity: item.quantity };
         })
       );
-      res.render('listings/cart.ejs', { cartDetails });
+  
+      const filteredCart = cartDetails.filter(item => item !== null);
+      res.render('listings/cart.ejs', { cartDetails: filteredCart });
     } catch (err) {
-      console.log("Error fetching cart:", err);
+      console.log("❌ Error fetching cart:", err);
       res.status(500).send("Server Error");
     }
   });
