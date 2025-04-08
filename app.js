@@ -768,7 +768,7 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   let cart = [];
   
   // Add to Cart
-  app.post('/cart/add', (req, res) => {
+ app.post('/cart/add', (req, res) => {
     try {
       const { productId } = req.body; // Product ID from the form
       const existingProduct = cart.find(item => item.productId === productId);
@@ -786,7 +786,6 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
       res.status(500).send("Server Error");
     }
   });
-  
   // View Cart
   app.get('/cart', async (req, res) => {
     try {
