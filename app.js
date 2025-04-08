@@ -769,41 +769,52 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   let cart = [];
   
   // Add to Cart
+ 
   app.post('/cart/add', (req, res) => {
     try {
-      const { productId } = req.body; // Product ID from the form
-      const existingProduct = cart.find(item => item.productId === productId);
+      // Initialize cart if it doesn't exist
+      if (!req.session.cart) {
+        req.session.cart = [];  // Create an empty cart if it doesn't exist
+      }
+  
+      const { productId } = req.body;  // Product ID from the form
+      const existingProduct = req.session.cart.find(item => item.productId === productId);
   
       if (existingProduct) {
         existingProduct.quantity += 1;  // Increase quantity if product already exists
       } else {
-        cart.push({ productId, quantity: 1 });  // Add new product to cart
+        req.session.cart.push({ productId, quantity: 1 });  // Add new product to cart
       }
   
-      // Redirect to /cart after adding the item to cart
-      res.redirect('/cart');
+      res.redirect('/cart');  // Redirect to /cart page after adding the item
     } catch (err) {
       console.log("Error adding to cart:", err);
       res.status(500).send("Server Error");
     }
   });
-  
+   
   // View Cart
-  app.get('/cart', async (req, res) => {
+  app.get('/cart', (req, res) => {
     try {
-      // Fetch details of items in cart
-      const cartDetails = await Promise.all(
-        cart.map(async (item) => {
-          const product = await Listing.findById(item.productId);
-          return { ...product.toObject(), quantity: item.quantity };
-        })
-      );
-      res.render('listings/cart.ejs', { cartDetails });
+      if (!req.session.cart || req.session.cart.length === 0) {
+        return res.render('listings/cart.ejs', { cartDetails: [] });  // Rendering an empty cart
+      }
+  
+      const cartDetails = req.session.cart.map(item => {
+        // Fetch the product details from the database using the product ID
+        return {
+          ...item,  // Add the cart item details
+          // Add any extra product info if needed, like name, price, etc.
+        };
+      });
+  
+      res.render('listings/cart.ejs', { cartDetails });  // Render the cart with product details
     } catch (err) {
       console.log("Error fetching cart:", err);
       res.status(500).send("Server Error");
     }
   });
+  
   // Update Cart
   app.post('/cart/update', async (req, res) => {
     try {
