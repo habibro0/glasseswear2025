@@ -74,20 +74,18 @@ if(process.env.NODE_ENV !== 'production'){
     console.log("session store error",err)
   })
   
-  
+
   const sessionOptions = {
-    store,  // Assuming you have a store like Redis set up, else use the default memory store.
+    store,
     secret: "glasseswearlovely",  // Should ideally be an environment variable
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000,  // 1 week in milliseconds
-      httpOnly: true,  // Helps prevent XSS attacks
-      secure: process.env.NODE_ENV === 'production',  // Ensures cookies are only sent over HTTPS in production
-      sameSite: 'strict'  // Helps prevent CSRF attacks
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true
     }
   };
-  
 
   
   app.use(session(sessionOptions)); // ✅ پہلے سیشن لوڈ کرو
@@ -124,7 +122,13 @@ if(process.env.NODE_ENV !== 'production'){
     res.locals.userLocation = req.session.userLocation;
     next();
   });
-
+  app.use((req, res, next) => {
+    if (!req.session.cart) {
+      req.session.cart = [];  // Initialize empty cart if not present
+    }
+    next();
+  });
+  
   app.use(async (req, res, next) => {
     if (req.user && ["faisalmotiwala", "karim", "habibro123"].includes(req.user.username)) {
         try {
@@ -765,18 +769,9 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   
     
   })
- // Cart logic: Using a simple array for now (can be stored in session or DB)
-  let cart = [];
-  
-  // Add to Cart
- 
+  // Cart logic: Using a simple array for now (can be stored in session or DB)
   app.post('/cart/add', (req, res) => {
     try {
-      // Initialize cart if it doesn't exist
-      if (!req.session.cart) {
-        req.session.cart = [];  // Create an empty cart if it doesn't exist
-      }
-  
       const { productId } = req.body;  // Product ID from the form
       const existingProduct = req.session.cart.find(item => item.productId === productId);
   
@@ -786,29 +781,24 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
         req.session.cart.push({ productId, quantity: 1 });  // Add new product to cart
       }
   
-      res.redirect('/cart');  // Redirect to /cart page after adding the item
+      res.redirect('/cart');
     } catch (err) {
       console.log("Error adding to cart:", err);
       res.status(500).send("Server Error");
     }
   });
-   
+  
   // View Cart
-  app.get('/cart', (req, res) => {
+  app.get('/cart', async (req, res) => {
     try {
-      if (!req.session.cart || req.session.cart.length === 0) {
-        return res.render('listings/cart.ejs', { cartDetails: [] });  // Rendering an empty cart
-      }
-  
-      const cartDetails = req.session.cart.map(item => {
-        // Fetch the product details from the database using the product ID
-        return {
-          ...item,  // Add the cart item details
-          // Add any extra product info if needed, like name, price, etc.
-        };
-      });
-  
-      res.render('listings/cart.ejs', { cartDetails });  // Render the cart with product details
+      // Fetch details of items in cart
+      const cartDetails = await Promise.all(
+        req.session.cart.map(async (item) => {
+          const product = await Listing.findById(item.productId);
+          return { ...product.toObject(), quantity: item.quantity };
+        })
+      );
+      res.render('listings/cart.ejs', { cartDetails });
     } catch (err) {
       console.log("Error fetching cart:", err);
       res.status(500).send("Server Error");
@@ -824,7 +814,7 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
         return res.status(400).json({ message: 'Invalid data provided.' });
       }
   
-      const cartItem = cart.find(item => item.productId === productId);
+      const cartItem = req.session.cart.find(item => item.productId === productId);
       if (!cartItem) {
         return res.status(404).json({ message: 'Product not found in cart.' });
       }
@@ -835,7 +825,7 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
       const totalPrice = product.price * cartItem.quantity;
   
       let totalCartPrice = 0;
-      for (let item of cart) {
+      for (let item of req.session.cart) {
         const product = await Listing.findById(item.productId);
         totalCartPrice += product.price * item.quantity;
       }
@@ -851,13 +841,14 @@ app.get("/users", isAuthorizedUser, async (req, res) => {
   app.post('/cart/remove', (req, res) => {
     try {
       const { productId } = req.body;
-      cart = cart.filter(item => item.productId !== productId);
+      req.session.cart = req.session.cart.filter(item => item.productId !== productId);
       res.redirect('/cart');
     } catch (err) {
       console.log("Error removing from cart:", err);
       res.status(500).send("Server Error");
     }
   });
+  
   
   // Search Route (search listings by query)
   app.get("/search", async (req, res) => {
